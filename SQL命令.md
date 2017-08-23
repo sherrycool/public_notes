@@ -116,37 +116,15 @@ having mean_score > 60;
 
 ==**3、查询所有同学的学号、姓名、选课数、总成绩；**==
 
-select s.S#, s.Sname, count(c.C#) as course_number, sum(sc.score) as whole_score
-
-from(Student s innor join SC sc
-
-on s.S#= sc.S#
-
-innor join Course c
-
-on sc.C# = c.C#)
-
-group by s.S#;
-
-答案:
-
 select s.S#, s.name, count(sc.C#), sum(sc.score)
 
 from Student s **left outer join** SC sc
 
 on s.S#=sc.S#
 
-group by s.S#,**s.Sname**  # 为什么要groupby两个？
+group by s.S#,**s.Sname**  # 为什么要groupby两个？，认为一个就好
 
 **4、查询姓“李”的老师的个数；**
-
-select count(*)
-
-from Teacher
-
-where Tname like '李';
-
-答案：
 
 select count(**distinct**(T#))
 
@@ -155,32 +133,6 @@ from Teacher
 where Tname like '李';
 
 **5、查询没学过“叶平”老师课的同学的学号、姓名；**
-
-select s.S#, s.Sname
-
-from (select distinct(s.S#)
-
-from Student s left join SC sc
-
-on s.S#=sc.s#
-
-left join Course c
-
-on sc.C#= c.C#
-
-left join Teacher t
-
-on t.T#=c.T#
-
-where t.Tname == '叶平') a,
-
-(select distinct(S#) from Student) b,
-
-Student
-
-where a not in b;
-
-答案：
 
 select s.S#,s.Sname #不明白这里为什么要加表名
 
@@ -198,33 +150,51 @@ and c.T#=t.T#
 
 and t.Tname = '叶平') #注意一个=等号
 
-逻辑是一样的，当时答案明显写的确定正确，简单。
-
 ==**6、查询学过“001”并且也学过编号“002”课程的同学的学号、姓名；**==
-
-select s.S#,s.Sname
-
-from Student s, Course c, SC sc
-
-where s.S#=sc.S#
-
-and sc.C#=c.C#
-
-and c.Course ='001'
-
-and c.Course = '002'
-
-group by s.S#;
-
-答案：
 
 select Student.S#,Student.Sname
 from Student,SC
-where Student.S#=SC.S# and SC.C#=’001′and **exists( Select * from SC as SC_2 where SC_2.S#=SC.S# and SC_2.C#=’002′);**
+where Student.S#=SC.S# 
+
+and SC.C#=’001′
+
+and **exists( Select * from SC as SC_2 where SC_2.S#=SC.S# and SC_2.C#=’002′);**
 
 > 第一，只需要连接s和sc表，因为sc表里面有c#课程号。
 >
 > 第二，逻辑是不一样的。不明白为什么不能使用group by，可以试一试（如果有表的，sql使用条件的话）
+
+（这个也是交集的意思，学习下交集、并集和差集）
+
+并集：
+
+```
+SELECT Name FROM Person_1
+　　UNION
+　　SELECT Name FROM Person_2
+```
+
+```
+　SELECT Name FROM Person_1
+　　UNION ALL  #并集all，出现多次重复的
+　　SELECT Name FROM Person_2
+```
+
+差集
+
+```
+　　SELECT Name FROM Person_1
+　　EXCEPT
+　　SELECT Name FROM Person_2
+```
+
+交集
+
+```
+SELECT Name FROM Person_1
+　　INTERSECT
+　　SELECT Name FROM Person_2
+```
 
 ==**7、查询学过“叶平”老师所教的所有课的同学的学号、姓名；**==
 
@@ -281,57 +251,13 @@ having count(c.C#));
 
 **8、查询所有课程成绩小于60分的同学的学号、姓名；**
 
-select distinct(s.S#), s.Sname
-
-from Student s
-
-where s.S#in (select S#
-
-from SC
-
-where score < 60);
-
 答案：
 
 select S#,Sname
 from Student
 where S# not in (select Student.S# from Student,SC where S.S#=SC.S# and score>60);
 
-> 此题，我觉得我的方法也是对的。
->
-> 我的方式：有低于60分的就挑出来
->
-> 答案：不在所有的高于60的（我反而觉得答案有些问题）
-
 **9、查询没有学全所有课的同学的学号、姓名；**
-
-第一个问题，所有课是什么。
-
-和第七题很像。
-
-select distinct(S.S#), S.Sname
-
-from Student S
-
-where S# in 
-
-(select S.S# 
-
-from (select S.S#, count(distinct(SC.C#)) as course_num
-
-from Student S, SC
-
-where S.S#=SC.S#
-
-group by S.S#
-
-having course_num < (select count(distinct(C#)) from Course )));
-
-> 我的逻辑：
->
-> 符合要求的表格的学号在
->
-> 选出学号（选课数量< 全部的课））
 
 答案：
 
@@ -368,27 +294,15 @@ where S#='1001');
 
 ==**11、删除学习“叶平”老师课的SC表记录；**==
 
-delete * 
-
-from SC
-
-where C# in (select SC.C# 
-
-from SC, Teacher T, Course
-
-where SC.C# = C.C#
-
-and T.T#= C.T#
-
-and T.Tname = '叶平');
-
 答案：
 
 Delect SC
 from course ,Teacher
 where Course.C#=SC.C# 
 
-and Course.T#= Teacher.T# and Tname='叶平';
+and Course.T#= Teacher.T# 
+
+and Tname='叶平';
 
 > delete的格式
 >
@@ -399,14 +313,6 @@ and Course.T#= Teacher.T# and Tname='叶平';
 > 【delete再学一下】
 
 ==**12、查询各科成绩最高和最低的分：以如下形式显示：课程ID，最高分，最低分**==
-
-select C#, max(score), min(score)
-
-from SC
-
-group by C#;
-
-答案：
 
 SELECT L.C# 课程ID,L.score 最高分,R.score 最低分
 FROM SC L ,SC R
