@@ -526,58 +526,130 @@ K-均值聚类
 
 - R操作
 
-- 数学原理
+  {stats} kmeans()
 
+  kmeans(x, centers, iter.max = 10, nstart =1, algorithm)
+
+  x=data, centers = k, iter.max 迭代次数，nstart选择随机起始中心点的次数。算法。
+
+```R
+result = kmeans(data, 2) # data是没有标签的，只有数值型变量的
+data$cluster = result$cluster # 将组号写在data里面。
+```
+
+
+
+- 数学原理
 - 算法优化点：快，对异常值或极值点敏感，稳定性差，适合处理分布集中的大样本数据集。
 
 K-中心点聚类
-
 - 基本算法：和K-均值类似，区别是新的中心点不是军职，而是取其余样本距离之和最小的样本作为中心。
+
 - R操作
+
+  {cluster} pam()
+
+  pam(data,k)
+
+  ```R
+  library(cluster)
+  fit_pam = pam(life,3)  # 分组3
+  ```
+
 - 数学原理
+
 - 算法优化点：改进K-均值受极值点影响。
 
 系谱聚类
+- 基本算法：聚类的过程类似于系谱图，不需要事先识丁类别，因为他每次迭代过程中仅将距离最近的两个样本和簇聚在一类。
 
-- 基本算法：聚类的过程类似于系谱图，不需要事先识丁类别数
-- ，因为他每次迭代过程中仅将距离最近的两个样本和簇聚在一类。
 - R操作
+
+  {stats} hclust. cutree. rect.hclust()
+
+  tree = hclust(距离)
+
+  cutree(tree,k,h) #剪枝，选择输出置顶类别数的系谱聚类结果。
+
+  rect.hclust(tree) # 图展示
+
+  ```r
+  fit_hc = hclust(dist(life)) # dist计算欧式距离
+  group = cutree(fit_hc, k=3) #k是组数量，h是高度
+  plot(fit_hc) # 画图谱系图
+  rect.hclust(fit_hc, k = 3) # 画图谱系图+分组识别（因为是stats包，plot可以泛式函数，直接动用）
+  ```
+
 - 数学原理
+
 - 算法优化点：不需要实现设定类别数k。
-密度聚类（DBSCAN）
 
+密度聚类（Density-based Methods）
 - 基本算法
+
 - R操作
+
+  {fpc} dbscan()
+
+  dbscan(data, eps, MinPts) #eps是邻域的半径。MinPts 密度阈值
+
+  ```R
+  > library(fpc)
+  > ds = dbscan(life, eps = 1, MinPts = 5)
+  Error in data - x : 二进列运算符中有非数值参数 # 报错，以后再去查原因吧。
+  ```
+
 - 数学原理
+
+- 算法优化点：基于密度来聚类，可以在具有噪声低空间数据库中发现任意形状的簇。
+
+
+期望最大化聚类（EM）
+
+
+- 基本算法：将数据集看作一个含有隐形变量的概率模型，并以实现模型最优化，即获取与数据本身性质最契合的聚类方式为目的，通过“反复估计”模型参数找到最优解，同时给出相应的最优类别数k。“反复估计”的过程是EM算法的精华，由E-step（expectation）和M-step（Maximization）。
+
+- R操作
+
+  {mclust} Mclust() clustBIC()  mclust2Dplot() densityMclust()
+
+  ```R
+  library(mclust)
+  fit_em = Mclust(life)
+  plot(fit_em)   #可以直接画图，就是单位不同
+  ```
+
+  ​
+
+- 数学原理
+
 - 算法优化点
 
-
-
-- 基本算法
-- R操作
-- 数学原理
-- 算法优化点
-
-
-- 基本算法
-- R操作
-- 数学原理
-- 算法优化点
-
-
-- 基本算法
-- R操作
-- 数学原理
-- 算法优化点
 
 ### 8. 判别分析
 
 学习目标：
 
-- 用途
+- 用途：判断样本所属的类别，依据是那些已知类别样本的属性信息。
+
+- 算法：费希尔判别Fisher、贝叶斯判别Bayes、距离判别
+
+  费希尔判别：线性判别分析Linear Discriminant Analysis（LDA）、二次判别分析Quadratic Discriminant Analysis（QDA）
+
+  贝叶斯判别：朴素贝叶斯分类Naive Bayesian Classification算法
+
+  距离判别：K最近邻k-Nearest Beighbor（kNN）、有权重的ZK最近邻（Weighted k-Nearest Neighbor）算法。
+
 - 基本原理
+
+  费希尔判别：投影，将高维空间的点向低维空间投影。在原坐标系下，空间中的点可能很难划分开。总重要的是选择适当的投影轴，要求是保证投影后，使每一类之内的投影所形成的类内离差尽可能小，而不同类之间的投影值所形成的类间离差尽可能大，即在该空间有最佳的可分离性，以此获得较高的判别效果。
+
+  线性盘背：
+
 - R操作
+
 - 数学原理
+
 - 算法优化点
 
 ### 9. 决策树
