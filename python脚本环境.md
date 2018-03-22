@@ -1,6 +1,16 @@
-# python脚本工作环境
+# python 积累知识
+## 日期
+```python
+# 日期定义和时间差
+import datetime
+d1 = datetime.datetime(2016,6,2)
+d2 = datetime.datetime(2017,3,27)
+d2-d1
+```
 
-## 初始化
+## python脚本工作环境
+
+### 初始化
 
 1. 先写一个python脚本
 
@@ -60,3 +70,7 @@ My second script
 
 执行
 
+## os系统中，sublime直接执行python代码
+1. sublime中设置python的路径。选择默认编译器为python3.
+2. 保存python文件。
+3. ctrl b执行代码（ctrl enter 进入下一行）
